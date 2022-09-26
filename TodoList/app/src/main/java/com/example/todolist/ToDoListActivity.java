@@ -1,10 +1,12 @@
 package com.example.todolist;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.example.todolist.databinding.ActivityToDoListBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,4 +27,5 @@ public class ToDoListActivity extends AppCompatActivity {
             startActivity(new Intent(ToDoListActivity.this, MainActivity.class));
         });
     }
+
 }

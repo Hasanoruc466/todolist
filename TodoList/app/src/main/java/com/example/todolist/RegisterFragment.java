@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -12,6 +13,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.example.todolist.databinding.FragmentRegisterBinding;
 import com.example.todolist.models.Users;
@@ -29,6 +31,7 @@ public class RegisterFragment extends Fragment {
     private TextInputLayout emailTIL, passwordTIL;
     private Users user;
     private FirebaseAuth auth;
+    private AlertDialog dialog;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -106,6 +109,7 @@ public class RegisterFragment extends Fragment {
                         binding.emailETReg.getText().toString(),
                         binding.passwordETReg.getText().toString()
                 );
+                loadDialog();
                 register(v);
             }
             else
@@ -121,10 +125,21 @@ public class RegisterFragment extends Fragment {
                         if(task.isSuccessful()){
                             Snackbar.make(v, "User Created", Snackbar.LENGTH_SHORT).show();
                             Navigation.findNavController(v).navigate(R.id.regToLog);
+                            dialog.dismiss();
                         }
-                        else
+                        else {
                             Snackbar.make(v, task.getException().getMessage(), Snackbar.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
                     }
                 });
+    }
+
+    private void loadDialog(){
+        AlertDialog.Builder adb = new AlertDialog.Builder(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.loading_dialog, null);
+        adb.setView(view);
+        dialog = adb.create();
+        dialog.show();
     }
 }

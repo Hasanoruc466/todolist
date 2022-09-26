@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.todolist.databinding.FragmentLoginBinding;
@@ -36,6 +37,7 @@ public class LoginFragment extends Fragment {
     private TextInputLayout emailTIL, passwordTIL;
     private FirebaseAuth auth;
     private TextInputEditText emailET;
+    private AlertDialog dialog;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -112,6 +114,7 @@ public class LoginFragment extends Fragment {
         binding.buttonLogin.setOnClickListener(v->{
             if(email.matcher( binding.emailET.getText()).matches()
                     && pass.matcher(binding.passwordET.getText()).matches()){
+                loadDialog();
                 auth.signInWithEmailAndPassword(binding.emailET.getText().toString(), binding.passwordET.getText().toString())
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
@@ -119,15 +122,16 @@ public class LoginFragment extends Fragment {
                                 if(task.isSuccessful()){
                                     Snackbar.make(v, "Login successful", Snackbar.LENGTH_SHORT).show();
                                     startActivity(new Intent(getActivity(), ToDoListActivity.class));
-                                    //Navigation.findNavController(v).navigate(R.id.loginToReg);
+                                    dialog.dismiss();
                                 }
-                                else
+                                else {
                                     Snackbar.make(v, task.getException().getMessage(), Snackbar.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                }
                             }
                         });
             }
         });
-
 
     }
 
@@ -172,5 +176,13 @@ public class LoginFragment extends Fragment {
         binding.textViewForgot.setOnClickListener(v->{
             dialog(email);
         });
+    }
+
+    private void loadDialog(){
+        AlertDialog.Builder adb = new AlertDialog.Builder(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.loading_dialog, null);
+        adb.setView(view);
+        dialog = adb.create();
+        dialog.show();
     }
 }
