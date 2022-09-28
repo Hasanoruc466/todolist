@@ -5,20 +5,30 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.todolist.databinding.FragmentRecentBinding;
 import com.example.todolist.models.ToDo;
+import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +38,7 @@ public class RecentFragment extends Fragment {
     private SharedPreferences sp;
     private FirebaseDatabase fd;
     private DatabaseReference df;
+    private StorageReference sr;
     private String key;
     private ToDo td;
     @Override
@@ -37,6 +48,7 @@ public class RecentFragment extends Fragment {
         View view = binding.getRoot();
         fd = FirebaseDatabase.getInstance();
         df = fd.getReference("todolist");
+        sr = FirebaseStorage.getInstance().getReference("uploads");
         sp = getActivity().getSharedPreferences("Key", Context.MODE_PRIVATE);
         key = sp.getString("key","null");
         findTask();
@@ -54,7 +66,9 @@ public class RecentFragment extends Fragment {
                                 key,
                                 d.child("title").getValue(String.class),
                                 d.child("description").getValue(String.class),
-                                d.child("user").getValue(String.class)
+                                d.child("user").getValue(String.class),
+                                d.child("fileURL").getValue(String.class),
+                                d.child("fileName").getValue(String.class)
                         );
                     }
                 }
@@ -73,11 +87,25 @@ public class RecentFragment extends Fragment {
     private void setEditTexts(){
         binding.titleETRec.setText(td.getTitle());
         binding.descETRec.setText(td.getDescription());
+        Picasso.with(requireContext()).load(td.getFileURL()).into(binding.imageViewFileR);
+
     }
 
     private void removeTask(){
         binding.buttonRemove.setOnClickListener(v->{
+            StorageReference temp = sr.child(td.getFileName());
             df.child(key).removeValue();
+            temp.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    Toast.makeText(requireContext(), "File deleted", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
             Navigation.findNavController(v).navigate(R.id.recTolList);
         });
     }

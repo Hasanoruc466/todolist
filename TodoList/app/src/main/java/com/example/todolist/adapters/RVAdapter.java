@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -16,8 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.todolist.ListFragmentDirections;
 import com.example.todolist.R;
 import com.example.todolist.models.ToDo;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +62,21 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.RVCardView> {
 
     private void deleteList(int i){
         String key = toDoList.get(i).getKey();
+        String fileName = toDoList.get(i).getFileName();
         FirebaseDatabase fd = FirebaseDatabase.getInstance();
         DatabaseReference df = fd.getReference("todolist");
+        StorageReference sr = FirebaseStorage.getInstance().getReference("uploads");
+        sr.child(fileName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
         df.child(key).removeValue();
     }
 

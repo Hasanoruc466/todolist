@@ -5,6 +5,8 @@ public class ToDo {
     private String title;
     private String description;
     private String user;
+    private String fileURL;
+    private String fileName;
 
     public ToDo() {
     }
@@ -15,11 +17,36 @@ public class ToDo {
         this.user = user;
     }
 
+    public String getFileURL() {
+        return fileURL;
+    }
+
+    public void setFileURL(String fileURL) {
+        this.fileURL = fileURL;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     public ToDo(String key, String title, String description, String user) {
         this.key = key;
         this.title = title;
         this.description = description;
         this.user = user;
+    }
+
+    public ToDo(String key, String title, String description, String user, String fileURL, String fileName) {
+        this.key = key;
+        this.title = title;
+        this.description = description;
+        this.user = user;
+        this.fileURL = fileURL;
+        this.fileName = fileName;
     }
 
     public String getUser() {
